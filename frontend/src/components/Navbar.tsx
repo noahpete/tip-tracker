@@ -10,7 +10,7 @@ export const Navbar = (props: Props) => {
 	return (
 		<div className="w-full border px-6 py-4 flex">
 			<div className="flex mt-1">
-				<div className="-mt-1">
+				<div className="-mt-1 ml-1">
 					<Image
 						src={"/tipper-icon.png"}
 						alt="logo"
