@@ -11,7 +11,7 @@ export const Navbar = (props: Props) => {
 			<h1 className="font-bold text-2xl">tipper</h1>
 			<div className="ml-auto -mr-2">
 				<Sheet>
-					<SheetTrigger asChild>
+					<SheetTrigger>
 						<Button variant="ghost">
 							<Menu style={{ width: "24px", height: "24px" }} />
 						</Button>
