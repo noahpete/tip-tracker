@@ -19,11 +19,11 @@ export const Navbar = (props: Props) => {
 						className="mr-0.5 aspect-square"
 					/>
 				</div>
-				<h1 className="font-bold text-2xl text-[#05CF1C]">tipper</h1>
+				<h1 className="font-medium text-2xl text-[#05CF1C]">tipper</h1>
 			</div>
 			<div className="ml-auto -mr-2">
 				<Sheet>
-					<SheetTrigger>
+					<SheetTrigger asChild>
 						<Button variant="ghost">
 							<Menu style={{ width: "24px", height: "24px" }} />
 						</Button>
