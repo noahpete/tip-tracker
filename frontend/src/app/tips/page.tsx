@@ -1,32 +1,48 @@
 "use client";
 
+import { Shift } from "@/components/Shift";
 import { Card } from "@/components/ui/card";
+import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
-type Shift = {
-	tips: number;
-	date: string;
-	start: string;
-	end: string;
-};
-
-const formatDate = (dateString: string): string => {
-	const date = new Date(dateString);
-	return new Intl.DateTimeFormat("en-US", {
-		weekday: "long",
-		month: "short",
-		day: "numeric",
-	}).format(date);
-};
-
-const formatTime = (dateString: string): string => {
-	const date = new Date(dateString);
-	return new Intl.DateTimeFormat("en-US", {
-		hour: "numeric",
-		minute: "numeric",
-		hour12: true,
-	}).format(date);
-};
+const EXAMPLE_DATA = [
+	{
+		id: 1,
+		tips: 18.2,
+		date: "2024-12-08",
+		start: "2024-12-08T15:30:00.000Z",
+		end: "2024-12-08T19:45:00.000Z",
+		createdAt: "2024-12-06T21:02:39.899275",
+		updatedAt: "2024-12-06T21:02:39.899275",
+	},
+	{
+		id: 2,
+		tips: 75.4,
+		date: "2024-12-10",
+		start: "2024-12-10T20:15:00.000Z",
+		end: "2024-12-10T23:30:00.000Z",
+		createdAt: "2024-12-06T21:02:39.899275",
+		updatedAt: "2024-12-06T21:02:39.899275",
+	},
+	{
+		id: 3,
+		tips: 115.7,
+		date: "2024-12-11",
+		start: "2024-12-11T16:00:00.000Z",
+		end: "2024-12-11T21:00:00.000Z",
+		createdAt: "2024-12-06T21:02:39.899275",
+		updatedAt: "2024-12-06T21:02:39.899275",
+	},
+	{
+		id: 4,
+		tips: 78.6,
+		date: "2024-12-12",
+		start: "2024-12-12T18:45:00.000Z",
+		end: "2024-12-12T23:59:00.000Z",
+		createdAt: "2024-12-06T21:02:39.899275",
+		updatedAt: "2024-12-06T21:02:39.899275",
+	},
+];
 
 export default function TipsPage() {
 	const [data, setData] = useState<any | null>(null);
@@ -55,18 +71,8 @@ export default function TipsPage() {
 
 	return (
 		<div className="p-8 space-y-2">
-			{data?.map((shift: Shift) => (
-				<Card className="p-2 py-3 flex">
-					<div className="w-24 flex items-center justify-end text-2xl font-medium mr-2">
-						{shift.tips.toFixed(2)}
-					</div>
-					<div>
-						<p>{formatDate(shift.date)}</p>
-						<p className="text-xs">
-							{formatTime(shift.start)} - {formatTime(shift.end)}
-						</p>
-					</div>
-				</Card>
+			{EXAMPLE_DATA?.map((shift) => (
+				<Shift shift={shift} />
 			))}
 		</div>
 	);
