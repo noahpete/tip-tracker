@@ -28,10 +28,17 @@ export const Navbar = (props: Props) => {
 							<Menu style={{ width: "24px", height: "24px" }} />
 						</Button>
 					</SheetTrigger>
-					<SheetContent>
+					<SheetContent className="font-bold space-y-8">
 						<p>Home</p>
 						<p>Tips</p>
 						<p>Analytics</p>
+						<div className="bg-foreground h-0.5 rounded-full"></div>
+						<div className="flex justify-center space-x-4">
+							<Button variant="outline" className="text-[#05CF1C] outline outline-[#05CF1C]">
+								Login
+							</Button>
+							<Button className="bg-[#05CF1C]">Sign up</Button>
+						</div>
 					</SheetContent>
 				</Sheet>
 			</div>
