@@ -37,11 +37,10 @@ const formatDate = (dateString: string): string => {
 };
 
 const formatTime = (dateString: string): string => {
-	// Try to create a Date object and check if it's valid
-	const date = new Date(dateString + "Z"); // Assumes the time string is in a valid ISO format or with Z for UTC
+	const date = new Date(dateString + "Z");
 	if (isNaN(date.getTime())) {
 		console.log(`Invalid date string: [${dateString}]`);
-		return ""; // Return an empty string if invalid date
+		return "";
 	}
 
 	try {
@@ -52,26 +51,22 @@ const formatTime = (dateString: string): string => {
 		}).format(date);
 	} catch (error) {
 		console.log(`Failed to format time for [${dateString}]`, error);
-		return ""; // Return an empty string if formatting fails
+		return "";
 	}
 };
 
 const calculateHoursWorked = (start: string, end: string): number => {
-	// Add a default date to the time strings to ensure they are recognized properly
-	const startTime = new Date(`1970-01-01T${start}:00Z`).getTime(); // Appending 'Z' for UTC
-	const endTime = new Date(`1970-01-01T${end}:00Z`).getTime(); // Same for end time
+	const startTime = new Date(`${start}Z`).getTime();
+	const endTime = new Date(`${end}Z`).getTime();
 
-	// Check if the times are valid
 	if (isNaN(startTime) || isNaN(endTime)) {
 		console.log(`Invalid start or end time: ${start} - ${end}`);
-		return 0; // Return 0 if time is invalid
+		return 0;
 	}
 
-	// Calculate hours worked
-	const hoursWorked = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+	const hoursWorked = Math.abs(endTime - startTime) / (1000 * 60 * 60);
 
-	// Ensure hours worked is non-negative
-	return hoursWorked >= 0 ? hoursWorked : 0;
+	return hoursWorked;
 };
 
 const calculateHourlyWage = (tips: number, start: string, end: string): string => {
