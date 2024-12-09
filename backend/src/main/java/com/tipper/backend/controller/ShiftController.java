@@ -3,6 +3,7 @@ package com.tipper.backend.controller;
 import com.tipper.backend.dto.ShiftDto;
 import com.tipper.backend.service.ShiftService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/shifts")
 public class ShiftController {
+    @Autowired
     private ShiftService shiftService;
 
     @PostMapping

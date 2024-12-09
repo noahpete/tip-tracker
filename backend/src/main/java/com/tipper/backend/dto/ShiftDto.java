@@ -100,4 +100,8 @@ public class ShiftDto {
     public void setUpdated(LocalDateTime updated) {
         this.updated = updated;
     }
+
+    public String toString() {
+        return "ShiftDto(id=" + this.getId() + ", owner=" + this.getOwner() + ", cashTips=" + this.getCashTips() + ", creditTips=" + this.getCreditTips() + ", date=" + this.getDate() + ", startTime=" + this.getStartTime() + ", endTime=" + this.getEndTime() + ", created=" + this.getCreated() + ", updated=" + this.getUpdated() + ")";
+    }
 }

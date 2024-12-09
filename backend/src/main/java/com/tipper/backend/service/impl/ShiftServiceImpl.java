@@ -7,6 +7,7 @@ import com.tipper.backend.mapper.ShiftMapper;
 import com.tipper.backend.repository.ShiftRepository;
 import com.tipper.backend.service.ShiftService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,12 +17,16 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ShiftServiceImpl implements ShiftService {
 
+    @Autowired
     private ShiftRepository shiftRepository;
 
     @Override
     public ShiftDto createShift(ShiftDto shiftDto) {
+        System.out.println("Received ShiftDto: " + shiftDto);
         Shift shift = ShiftMapper.mapToShift(shiftDto);
+        System.out.println("Mapped Shift Entity: " + shift);
         Shift savedShift = shiftRepository.save(shift);
+        System.out.println("Saved Shift Entity: " + savedShift);
         return ShiftMapper.mapToShiftDto(savedShift);
     }
 
