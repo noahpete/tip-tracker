@@ -1,18 +1,29 @@
-import { ChevronDown } from "lucide-react";
+"use client";
+
+import { ChevronDown, EllipsisIcon } from "lucide-react";
 import { Card } from "./ui/card";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Button } from "./ui/button";
 
 type Shift = {
+	id: number;
 	cashTips: number;
 	creditTips: number;
 	date: string;
-	start: string;
-	end: string;
+	startTime: string;
+	endTime: string;
 };
 
 type Props = {
 	shift: Shift;
+	onDelete: (id: number) => void;
 };
 
 const formatDate = (dateString: string): string => {
@@ -25,7 +36,7 @@ const formatDate = (dateString: string): string => {
 };
 
 const formatTime = (dateString: string): string => {
-	const date = new Date(dateString);
+	const date = new Date(dateString + "Z");
 	return new Intl.DateTimeFormat("en-US", {
 		hour: "numeric",
 		minute: "numeric",
@@ -45,27 +56,133 @@ const calculateHourlyWage = (tips: number, start: string, end: string): string =
 	return hoursWorked > 0 ? "$" + (tips / hoursWorked).toFixed(2) : ">$1000";
 };
 
-export const Shift = (props: Props) => {
+export const Shift = ({ shift, onDelete }: Props) => {
 	const [isExpanded, setIsExpanded] = useState<boolean>(false);
+	const [isEditing, setIsEditing] = useState<boolean>(false);
+	const [editableShift, setEditableShift] = useState<Shift>(shift);
+
+	const handleInputChange = (field: keyof Shift, value: string | number) => {
+		setEditableShift((prev) => ({
+			...prev,
+			[field]: typeof value === "number" ? value : String(value),
+		}));
+	};
+
+	const handleSave = async (shiftId: number, newShift: Shift) => {
+		const formData = {
+			cashTips: newShift.cashTips,
+			creditTips: newShift.creditTips,
+			date: newShift.date,
+			startTime: newShift.startTime,
+			endTime: newShift.endTime,
+			updated: new Date().toISOString(),
+		};
+
+		try {
+			const response = await fetch(`http://localhost:8080/api/shifts/${shiftId}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(formData),
+			});
+
+			if (response.ok) {
+				alert("Shift saved successfully!");
+			} else {
+				alert("Failed to edit shift.");
+			}
+		} catch (error) {
+			console.error("Error submitting the form:", error);
+			alert("An error occurred while editing the shift.");
+		}
+	};
+
+	const handleDelete = async (shiftId: number) => {
+		try {
+			const response = await fetch(`http://localhost:8080/api/shifts/${shiftId}`, {
+				method: "DELETE",
+			});
+
+			if (response.ok) {
+				alert("Shift deleted successfully!");
+			} else {
+				alert("Failed to delete shift.");
+			}
+		} catch (error) {
+			console.error("Error submitting the form:", error);
+			alert("An error occurred while deleting the shift.");
+		}
+	};
 
 	return (
 		<Card
 			className={cn(
 				"p-2 py-3 transition-all duration-500 overflow-hidden",
-				isExpanded ? "max-h-36" : "max-h-16"
+				isExpanded ? "max-h-60" : "max-h-16"
 			)}
 		>
 			<div className="flex">
 				<div className="w-24 flex items-center justify-end text-2xl font-medium mr-2">
-					{(props.shift.cashTips + props.shift.creditTips).toFixed(2)}
+					{(editableShift.cashTips + editableShift.creditTips).toFixed(2)}
 				</div>
 				<div>
-					<p>{formatDate(props.shift.date)}</p>
-					<p className="text-xs">
-						{formatTime(props.shift.start)} - {formatTime(props.shift.end)}
-					</p>
+					{!isEditing ? (
+						<>
+							<p>{formatDate(editableShift.date)}</p>
+							<p className="text-xs">
+								{formatTime(editableShift.startTime)} - {formatTime(editableShift.endTime)}
+							</p>
+						</>
+					) : (
+						<>
+							<input
+								type="date"
+								value={editableShift.date}
+								onChange={(e) => handleInputChange("date", e.target.value)}
+								className="border rounded px-2 py-1 text-xs"
+							/>
+							<div className="flex space-x-2 mt-1">
+								<input
+									type="time"
+									value={editableShift.startTime}
+									onChange={(e) => handleInputChange("startTime", e.target.value)}
+									className="border rounded px-2 py-1 text-xs"
+								/>
+								<input
+									type="time"
+									value={editableShift.endTime}
+									onChange={(e) => handleInputChange("endTime", e.target.value)}
+									className="border rounded px-2 py-1 text-xs"
+								/>
+							</div>
+						</>
+					)}
 				</div>
 				<div className="ml-auto items-center flex cursor-pointer">
+					<DropdownMenu>
+						<DropdownMenuTrigger>
+							<EllipsisIcon className="scale-75 mr-2" />
+						</DropdownMenuTrigger>
+						<DropdownMenuContent>
+							<DropdownMenuItem
+								onClick={() => {
+									setIsEditing(!isEditing);
+									setIsExpanded(true);
+								}}
+							>
+								Edit
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									setIsEditing(false);
+									onDelete(shift.id);
+								}}
+							>
+								Delete
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 					<ChevronDown
 						className={cn("transition-all duration-500", isExpanded ? "-scale-y-100" : "")}
 						onClick={() => setIsExpanded(!isExpanded)}
@@ -73,23 +190,59 @@ export const Shift = (props: Props) => {
 				</div>
 			</div>
 			<div className="mt-2 px-4 text-xs flex items-center w-fit ml-auto mr-auto space-x-4">
-				<div>
-					<p>Cash tips: {props.shift.cashTips.toFixed(2)}</p>
-					<p>Credit tips: {props.shift.creditTips.toFixed(2)}</p>
-				</div>
-				<div>
-					<p>Hours worked: {calculateHoursWorked(props.shift.start, props.shift.end).toFixed(2)}</p>
-					<p>
-						Hourly:{" "}
-						{calculateHourlyWage(
-							props.shift.cashTips + props.shift.creditTips,
-							props.shift.start,
-							props.shift.end
-						)}{" "}
-						/hr
-					</p>
-				</div>
+				{!isEditing ? (
+					<>
+						<div>
+							<p>Cash tips: {editableShift.cashTips.toFixed(2)}</p>
+							<p>Credit tips: {editableShift.creditTips.toFixed(2)}</p>
+						</div>
+						<div>
+							<p>
+								Hours worked:{" "}
+								{calculateHoursWorked(editableShift.startTime, editableShift.endTime).toFixed(2)}
+							</p>
+							<p>
+								Hourly:{" "}
+								{calculateHourlyWage(
+									editableShift.cashTips + editableShift.creditTips,
+									editableShift.startTime,
+									editableShift.endTime
+								)}{" "}
+								/hr
+							</p>
+						</div>
+					</>
+				) : (
+					<>
+						<div>
+							<label>Cash Tips</label>
+							<input
+								type="number"
+								value={editableShift.cashTips}
+								onChange={(e) => handleInputChange("cashTips", Number(e.target.value))}
+								className="border rounded px-2 py-1"
+							/>
+						</div>
+						<div>
+							<label>Credit Tips</label>
+							<input
+								type="number"
+								value={editableShift.creditTips}
+								onChange={(e) => handleInputChange("creditTips", Number(e.target.value))}
+								className="border rounded px-2 py-1"
+							/>
+						</div>
+					</>
+				)}
 			</div>
+			{isEditing && (
+				<div className="mt-2 flex justify-center space-x-2">
+					<Button onClick={() => handleSave(shift.id, editableShift)}>Save</Button>
+					<Button variant="outline" onClick={() => setIsEditing(false)}>
+						Cancel
+					</Button>
+				</div>
+			)}
 		</Card>
 	);
 };

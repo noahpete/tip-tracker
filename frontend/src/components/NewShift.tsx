@@ -18,9 +18,11 @@ import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
 import { useUser } from "@clerk/nextjs";
 
-type Props = {};
+type Props = {
+	onShiftCreated: () => void;
+};
 
-const NewShift = (props: Props) => {
+const NewShift = ({ onShiftCreated }: Props) => {
 	const { user } = useUser();
 	const [cash, setCash] = useState<number>(0);
 	const [credit, setCredit] = useState<number>(0);
@@ -78,8 +80,6 @@ const NewShift = (props: Props) => {
 			updated: new Date().toISOString(),
 		};
 
-		console.log("Form Data to Send:", formData);
-
 		try {
 			const response = await fetch("http://localhost:8080/api/shifts", {
 				method: "POST",
@@ -91,6 +91,7 @@ const NewShift = (props: Props) => {
 
 			if (response.ok) {
 				alert("Shift created successfully!");
+				onShiftCreated();
 			} else {
 				alert("Failed to create shift.");
 			}
