@@ -35,34 +35,50 @@ const NewShift = (props: Props) => {
 		setEndTime(formattedTime);
 	}, []);
 
+	const generateRandomLong = (): number => {
+		const min = 0;
+		const max = Number.MAX_SAFE_INTEGER;
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	};
+
 	const handleSubmit = async () => {
 		if (!user) {
 			alert("User not authenticated!");
 			return;
 		}
 
+		// Check that the date is valid and ensure it's set before using it
 		if (!date || !startTime || !endTime) {
 			alert("Please provide date, start time, and end time.");
 			return;
 		}
 
-		const formattedStartTime = `${date.toISOString().split("T")[0]}T${startTime}:00`;
-		const formattedEndTime = `${date.toISOString().split("T")[0]}T${endTime}:00`;
-		const formattedDate = date.toISOString().split("T")[0]; // Extracting the date part in 'yyyy-mm-dd'
+		// Ensure the start and end time are valid before formatting
+		const startDate = new Date(`${date.toISOString().split("T")[0]}T${startTime}:00`);
+		const endDate = new Date(`${date.toISOString().split("T")[0]}T${endTime}:00`);
+
+		// Check if both startDate and endDate are valid Date objects
+		if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+			alert("Invalid start or end time.");
+			return;
+		}
+
+		const formattedDate = date.toISOString().split("T")[0];
+		const formattedStartTime = startDate.toISOString();
+		const formattedEndTime = endDate.toISOString();
 
 		const formData = {
-			id: 1, // Assuming this will be auto-generated or handled by the backend
-			owner: user.id, // Assuming you want the username here
+			owner: user.id,
 			cashTips: cash,
 			creditTips: credit,
-			date: formattedDate, // Date in 'yyyy-mm-dd' format
-			startTime: formattedStartTime, // Start time in 'yyyy-mm-ddTHH:mm:ss'
-			endTime: formattedEndTime, // End time in 'yyyy-mm-ddTHH:mm:ss'
-			created: new Date().toISOString(), // Using current time for the 'created' field
-			updated: new Date().toISOString(), // Using current time for the 'updated' field
+			date: formattedDate,
+			startTime: formattedStartTime,
+			endTime: formattedEndTime,
+			created: new Date().toISOString(),
+			updated: new Date().toISOString(),
 		};
 
-		console.log("Form Data to Send:", formData); // Debugging line to ensure the correct format
+		console.log("Form Data to Send:", formData);
 
 		try {
 			const response = await fetch("http://localhost:8080/api/shifts", {
