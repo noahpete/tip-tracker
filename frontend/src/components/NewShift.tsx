@@ -29,6 +29,7 @@ const NewShift = ({ onShiftCreated }: Props) => {
 	const [startTime, setStartTime] = useState<string>("");
 	const [endTime, setEndTime] = useState<string>("");
 	const [date, setDate] = useState<Date>();
+	const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
 	useEffect(() => {
 		const now = new Date();
@@ -83,6 +84,7 @@ const NewShift = ({ onShiftCreated }: Props) => {
 			if (response.ok) {
 				alert("Shift created successfully!");
 				onShiftCreated();
+				setDialogOpen(false);
 			} else {
 				alert("Failed to create shift.");
 			}
@@ -93,15 +95,19 @@ const NewShift = ({ onShiftCreated }: Props) => {
 	};
 
 	return (
-		<Dialog>
+		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+			{" "}
 			<DialogTrigger asChild>
-				<Button className="bg-[#05CF1C] font-bold text-xl">+</Button>
+				<Button className="bg-[#05CF1C] font-bold text-xl" onClick={() => setDialogOpen(true)}>
+					+
+				</Button>
 			</DialogTrigger>
 			<DialogContent className="max-w-[320px]">
 				<DialogHeader>
 					<DialogTitle>Add shift</DialogTitle>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
+					{/* Form content */}
 					<div className="grid grid-cols-4 items-center gap-4">
 						<Label htmlFor="cash" className="text-right whitespace-nowrap">
 							Cash
