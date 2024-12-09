@@ -24,6 +24,7 @@ type Shift = {
 type Props = {
 	shift: Shift;
 	onDelete: (id: number) => void;
+	onShiftSave: () => void;
 };
 
 const formatDate = (dateString: string): string => {
@@ -36,19 +37,41 @@ const formatDate = (dateString: string): string => {
 };
 
 const formatTime = (dateString: string): string => {
-	const date = new Date(dateString + "Z");
-	return new Intl.DateTimeFormat("en-US", {
-		hour: "numeric",
-		minute: "numeric",
-		hour12: true,
-	}).format(date);
+	// Try to create a Date object and check if it's valid
+	const date = new Date(dateString + "Z"); // Assumes the time string is in a valid ISO format or with Z for UTC
+	if (isNaN(date.getTime())) {
+		console.log(`Invalid date string: [${dateString}]`);
+		return ""; // Return an empty string if invalid date
+	}
+
+	try {
+		return new Intl.DateTimeFormat("en-US", {
+			hour: "numeric",
+			minute: "numeric",
+			hour12: true,
+		}).format(date);
+	} catch (error) {
+		console.log(`Failed to format time for [${dateString}]`, error);
+		return ""; // Return an empty string if formatting fails
+	}
 };
 
 const calculateHoursWorked = (start: string, end: string): number => {
-	const startTime = new Date(start).getTime();
-	const endTime = new Date(end).getTime();
-	const hoursWorked = (endTime - startTime) / (1000 * 60 * 60);
-	return hoursWorked;
+	// Add a default date to the time strings to ensure they are recognized properly
+	const startTime = new Date(`1970-01-01T${start}:00Z`).getTime(); // Appending 'Z' for UTC
+	const endTime = new Date(`1970-01-01T${end}:00Z`).getTime(); // Same for end time
+
+	// Check if the times are valid
+	if (isNaN(startTime) || isNaN(endTime)) {
+		console.log(`Invalid start or end time: ${start} - ${end}`);
+		return 0; // Return 0 if time is invalid
+	}
+
+	// Calculate hours worked
+	const hoursWorked = (endTime - startTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+
+	// Ensure hours worked is non-negative
+	return hoursWorked >= 0 ? hoursWorked : 0;
 };
 
 const calculateHourlyWage = (tips: number, start: string, end: string): string => {
@@ -56,7 +79,7 @@ const calculateHourlyWage = (tips: number, start: string, end: string): string =
 	return hoursWorked > 0 ? "$" + (tips / hoursWorked).toFixed(2) : ">$1000";
 };
 
-export const Shift = ({ shift, onDelete }: Props) => {
+export const Shift = ({ shift, onDelete, onShiftSave }: Props) => {
 	const [isExpanded, setIsExpanded] = useState<boolean>(false);
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const [editableShift, setEditableShift] = useState<Shift>(shift);
@@ -69,12 +92,23 @@ export const Shift = ({ shift, onDelete }: Props) => {
 	};
 
 	const handleSave = async (shiftId: number, newShift: Shift) => {
+		const startDate = new Date(`${newShift.date.split("T")[0]}T${newShift.startTime}:00`);
+		const endDate = new Date(`${newShift.date.split("T")[0]}T${newShift.endTime}:00`);
+
+		if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+			alert("Invalid start or end time.");
+			return;
+		}
+
+		const formattedStartTime = startDate.toISOString();
+		const formattedEndTime = endDate.toISOString();
+
 		const formData = {
 			cashTips: newShift.cashTips,
 			creditTips: newShift.creditTips,
 			date: newShift.date,
-			startTime: newShift.startTime,
-			endTime: newShift.endTime,
+			startTime: formattedStartTime,
+			endTime: formattedEndTime,
 			updated: new Date().toISOString(),
 		};
 
@@ -89,6 +123,7 @@ export const Shift = ({ shift, onDelete }: Props) => {
 
 			if (response.ok) {
 				alert("Shift saved successfully!");
+				onShiftSave();
 			} else {
 				alert("Failed to edit shift.");
 			}
@@ -131,7 +166,7 @@ export const Shift = ({ shift, onDelete }: Props) => {
 						<>
 							<p>{formatDate(editableShift.date)}</p>
 							<p className="text-xs">
-								{formatTime(editableShift.startTime)} - {formatTime(editableShift.endTime)}
+								{formatTime(shift.startTime)} - {formatTime(shift.endTime)}
 							</p>
 						</>
 					) : (
@@ -237,7 +272,14 @@ export const Shift = ({ shift, onDelete }: Props) => {
 			</div>
 			{isEditing && (
 				<div className="mt-2 flex justify-center space-x-2">
-					<Button onClick={() => handleSave(shift.id, editableShift)}>Save</Button>
+					<Button
+						onClick={() => {
+							handleSave(shift.id, editableShift);
+							setIsEditing(false);
+						}}
+					>
+						Save
+					</Button>
 					<Button variant="outline" onClick={() => setIsEditing(false)}>
 						Cancel
 					</Button>

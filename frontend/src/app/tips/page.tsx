@@ -47,19 +47,19 @@ export default function TipsPage() {
 		}
 	};
 
-	const handleShiftCreated = () => {
+	const refreshData = () => {
 		fetchData();
 	};
 
 	return (
 		<div className="p-8 space-y-2 w-full">
 			<div className="mx-auto w-fit">
-				<NewShift onShiftCreated={handleShiftCreated} />
+				<NewShift onShiftCreated={refreshData} />
 			</div>
 			{loading && <p>Loading...</p>}
 			{error && <p className="text-red-500">Error: {error}</p>}
 			{data?.map((shift) => (
-				<Shift key={shift.id} shift={shift} onDelete={handleDelete} />
+				<Shift key={shift.id} shift={shift} onDelete={handleDelete} onShiftSave={refreshData} />
 			))}
 		</div>
 	);

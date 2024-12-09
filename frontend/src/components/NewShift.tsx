@@ -37,29 +37,20 @@ const NewShift = ({ onShiftCreated }: Props) => {
 		setEndTime(formattedTime);
 	}, []);
 
-	const generateRandomLong = (): number => {
-		const min = 0;
-		const max = Number.MAX_SAFE_INTEGER;
-		return Math.floor(Math.random() * (max - min + 1)) + min;
-	};
-
 	const handleSubmit = async () => {
 		if (!user) {
 			alert("User not authenticated!");
 			return;
 		}
 
-		// Check that the date is valid and ensure it's set before using it
 		if (!date || !startTime || !endTime) {
 			alert("Please provide date, start time, and end time.");
 			return;
 		}
 
-		// Ensure the start and end time are valid before formatting
 		const startDate = new Date(`${date.toISOString().split("T")[0]}T${startTime}:00`);
 		const endDate = new Date(`${date.toISOString().split("T")[0]}T${endTime}:00`);
 
-		// Check if both startDate and endDate are valid Date objects
 		if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
 			alert("Invalid start or end time.");
 			return;
