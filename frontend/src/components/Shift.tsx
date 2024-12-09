@@ -4,7 +4,8 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 type Shift = {
-	tips: number;
+	cashTips: number;
+	creditTips: number;
 	date: string;
 	start: string;
 	end: string;
@@ -51,12 +52,12 @@ export const Shift = (props: Props) => {
 		<Card
 			className={cn(
 				"p-2 py-3 transition-all duration-500 overflow-hidden",
-				isExpanded ? "max-h-32" : "max-h-16"
+				isExpanded ? "max-h-36" : "max-h-16"
 			)}
 		>
 			<div className="flex">
 				<div className="w-24 flex items-center justify-end text-2xl font-medium mr-2">
-					{props.shift.tips.toFixed(2)}
+					{(props.shift.cashTips + props.shift.creditTips).toFixed(2)}
 				</div>
 				<div>
 					<p>{formatDate(props.shift.date)}</p>
@@ -66,16 +67,28 @@ export const Shift = (props: Props) => {
 				</div>
 				<div className="ml-auto items-center flex cursor-pointer">
 					<ChevronDown
-						className={cn("transition-all", isExpanded ? "-scale-y-100" : "")}
+						className={cn("transition-all duration-500", isExpanded ? "-scale-y-100" : "")}
 						onClick={() => setIsExpanded(!isExpanded)}
 					/>
 				</div>
 			</div>
-			<div className="mt-2 px-4 text-xs">
-				<p>Hours worked: {calculateHoursWorked(props.shift.start, props.shift.end)}</p>
-				<p>
-					Hourly: {calculateHourlyWage(props.shift.tips, props.shift.start, props.shift.end)} /hr
-				</p>
+			<div className="mt-2 px-4 text-xs flex items-center w-fit ml-auto mr-auto space-x-4">
+				<div>
+					<p>Cash tips: {props.shift.cashTips.toFixed(2)}</p>
+					<p>Credit tips: {props.shift.creditTips.toFixed(2)}</p>
+				</div>
+				<div>
+					<p>Hours worked: {calculateHoursWorked(props.shift.start, props.shift.end).toFixed(2)}</p>
+					<p>
+						Hourly:{" "}
+						{calculateHourlyWage(
+							props.shift.cashTips + props.shift.creditTips,
+							props.shift.start,
+							props.shift.end
+						)}{" "}
+						/hr
+					</p>
+				</div>
 			</div>
 		</Card>
 	);
