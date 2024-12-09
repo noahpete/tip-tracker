@@ -1,4 +1,4 @@
-package com.tipper.backend;
+package com.tipper.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
